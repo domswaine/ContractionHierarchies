@@ -9,8 +9,11 @@ object Dijkstra {
     while(queue.nonEmpty && !expanded.contains(to)){
       val exp_node = queue.dequeue()
       if(!expanded.contains(exp_node)){
+        println(exp_node)
         expanded.add(exp_node)
-        graph.get_outgoing(exp_node).foreach{ case (_, onward_node, edge_cost) =>
+        println(exp_node, graph.get_outgoing_edges(exp_node))
+
+        graph.get_outgoing_edges(exp_node).foreach{ case (inward_node, onward_node, edge_cost) =>
           val new_cost: Float = dist(exp_node) + edge_cost
           if(!dist.contains(onward_node) || new_cost < dist(onward_node)){
             dist += onward_node -> new_cost

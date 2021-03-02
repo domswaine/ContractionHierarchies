@@ -7,7 +7,7 @@ class DijkstraTest extends AnyFunSuite {
     (1, 3, 1), (3, 1, 1), (2, 3, 4), (3, 2, 4), (2, 4, 1), (4, 2, 1),
     (3, 5, 1), (5, 3, 1), (4, 5, 1), (5, 4, 1)
   )
-  val graph: Digraph[Int] = Digraph(nodes, edges)
+  val graph: Digraph[Int] = new Digraph(nodes, edges)
 
   test("Shortest path in an directed graph") {
     assert(graph.dijkstra_shortest_path(1, 1) == 0)
