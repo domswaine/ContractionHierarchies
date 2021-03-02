@@ -1,6 +1,6 @@
 import org.scalatest.funsuite.AnyFunSuite
 
-class DijkstraTest extends AnyFunSuite {
+class DigraphTest extends AnyFunSuite {
 
   val nodes: Set[Int] = Set[Int](1, 2, 3, 4, 5)
   val edges: List[(Int, Int, Float)] = List(
@@ -17,5 +17,14 @@ class DijkstraTest extends AnyFunSuite {
     assert(graph.dijkstra_shortest_path(1, 5) == 2)
     assert(graph.dijkstra_shortest_path(1, 6) == Float.PositiveInfinity)
   }
+
+  test("Paths through node") {
+    assert(graph.get_paths_through(1).toSet == Set.empty)
+    assert(graph.get_paths_through(2).toSet == Set((3, 4), (4, 3)))
+    assert(graph.get_paths_through(3).toSet == Set((1, 2), (1, 5), (2, 1), (2, 5), (5, 1), (5, 2)))
+    assert(graph.get_paths_through(4).toSet == Set((2, 5), (5, 2)))
+    assert(graph.get_paths_through(5).toSet == Set((3, 4), (4, 3)))
+  }
+
 
 }
