@@ -37,4 +37,11 @@ class DigraphTest extends AnyFunSuite {
     assert(graph.add(edge).edges.keySet -- graph.edges.keySet == Set(edge._1))
   }
 
+  test("Contract graph node"){
+    val (n_graph: Digraph[Int], aug_edges: List[(Int, Int, Int)]) = graph.contract(3)
+    assert(n_graph.nodes.size == 4)
+    assert(n_graph.edges.size == 8)
+    assert(aug_edges.toSet == Set((1,3,2), (1,3,5), (5,3,1), (2,3,1)))
+  }
+
 }
