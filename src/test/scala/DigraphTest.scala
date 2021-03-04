@@ -32,4 +32,9 @@ class DigraphTest extends AnyFunSuite {
     assert(after.edges.keySet == Set((2, 4), (4, 2), (4, 5), (5, 4)))
   }
 
+  test("Add edge to graph") {
+    val edge: ((Int, Int), Float) = (1, 5) -> 2
+    assert(graph.add(edge).edges.keySet -- graph.edges.keySet == Set(edge._1))
+  }
+
 }

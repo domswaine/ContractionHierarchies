@@ -22,4 +22,6 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
   def remove(n: N): Digraph[N]
     = Digraph(nodes.excl(n), edges.filter{ case k->_ => k._1 != n && k._2 != n })
 
+  def add(e: ((N, N), Float)): Digraph[N] = Digraph(nodes, edges + e)
+
 }
