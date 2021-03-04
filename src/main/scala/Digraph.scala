@@ -19,4 +19,7 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
   def get_paths_through(n: N): List[(N, N)]
     = for(in <- get_incoming(n); out <- get_outgoing(n); if in!=out) yield (in, out)
 
+  def remove(n: N): Digraph[N]
+    = Digraph(nodes.excl(n), edges.filter{ case k->_ => k._1 != n && k._2 != n })
+
 }

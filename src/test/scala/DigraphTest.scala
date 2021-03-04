@@ -26,5 +26,10 @@ class DigraphTest extends AnyFunSuite {
     assert(graph.get_paths_through(5).toSet == Set((3, 4), (4, 3)))
   }
 
+  test("Remove node from graph") {
+    val after: Digraph[Int] = graph.remove(3)
+    assert(after.nodes == Set(1, 2, 4, 5))
+    assert(after.edges.keySet == Set((2, 4), (4, 2), (4, 5), (5, 4)))
+  }
 
 }
