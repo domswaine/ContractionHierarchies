@@ -7,6 +7,7 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
   def this(nodes: Set[N], edges: List[(N, N, Float)])
     = this(nodes, edges.map(e => ((e._1, e._2), e._3)).toMap)
 
+  def edges_count(): Int = edges.keySet.size
   def get_cost(from: N, to: N): Float = edges(from, to)
   def get_incoming(n: N): List[N] = in.getOrElse(n, Nil)
   def get_outgoing(n: N): List[N] = out.getOrElse(n, Nil)
@@ -38,5 +39,7 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
     }
     (without_node.add(augmentations.toList), augmentations.toList.map(ae => (ae._1._1, n, ae._1._2)))
   }
+
+  def edge_difference(n: N): Int = contract(n)._1.edges_count() - edges_count()
 
 }

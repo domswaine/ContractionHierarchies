@@ -44,4 +44,8 @@ class DigraphTest extends AnyFunSuite {
     assert(aug_edges.toSet == Set((1,3,2), (1,3,5), (5,3,1), (2,3,1)))
   }
 
+  test("Calculate edge difference for contracting a given node"){
+    assert(graph.edge_difference(3) == -2)
+  }
+
 }
