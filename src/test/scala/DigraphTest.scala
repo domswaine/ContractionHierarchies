@@ -1,3 +1,4 @@
+import Dijkstra.Direction
 import org.scalatest.funsuite.AnyFunSuite
 
 class DigraphTest extends AnyFunSuite {
@@ -20,13 +21,24 @@ class DigraphTest extends AnyFunSuite {
     = g2_undirected_edges ++ g2_undirected_edges.map(e => (e._2, e._1, e._3))
   val graph2: Digraph[Int] = new Digraph(g2_nodes, g2_directed_edges)
 
-  test("Shortest path in an directed graph") {
+  test("Shortest path in an undirected graph") {
     assert(graph.dijkstra_shortest_path(1, 1) == 0)
     assert(graph.dijkstra_shortest_path(1, 2) == 4)
     assert(graph.dijkstra_shortest_path(1, 3) == 1)
     assert(graph.dijkstra_shortest_path(1, 4) == 3)
     assert(graph.dijkstra_shortest_path(1, 5) == 2)
     assert(graph.dijkstra_shortest_path(1, 6) == Float.PositiveInfinity)
+  }
+
+  val g3_nodes: Set[Int] = (1 to 4).toSet
+  val g3_edges: List[(Int, Int, Float)] = List((1, 2, 1), (1, 3, 2), (2, 4, 2), (3, 4, 3))
+  val graph3 = new Digraph[Int](g3_nodes, g3_edges)
+
+  test("Shortest path in a directed graph"){
+    assert(new Dijkstra[Int](graph3, 1, Direction.Forward).shortest_path(4) == 3)
+    assert(new Dijkstra[Int](graph3, 4, Direction.Backward).shortest_path(1) == 3)
+    assert(new Dijkstra[Int](graph3, 4, Direction.Forward).shortest_path(1) == Float.PositiveInfinity)
+    assert(new Dijkstra[Int](graph3, 1, Direction.Backward).shortest_path(4) == Float.PositiveInfinity)
   }
 
   test("Paths through node") {
