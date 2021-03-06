@@ -13,7 +13,7 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
   def get_outgoing(n: N): List[N] = out.getOrElse(n, Nil)
 
   def dijkstra_shortest_path(from: N, to: N): Float
-    = Dijkstra.shortest_path(this, from, to)
+    = new Dijkstra[N](this, from).shortest_path(to)
 
   type edge = (N, N)
   type costed_edge = (edge, Float)
