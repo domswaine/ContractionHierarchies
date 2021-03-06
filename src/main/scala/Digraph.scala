@@ -42,4 +42,7 @@ case class Digraph[N](nodes: Set[N], edges: Map[(N, N), Float]) {
 
   def edge_difference(n: N): Int = contract(n)._1.edges_count() - edges_count()
 
+  def get_augmenting_edges(ordering: Ordering[N]): List[(N, N, N)]
+    = new Contractor[N](this).get_augmenting_edges(ordering)
+
 }
