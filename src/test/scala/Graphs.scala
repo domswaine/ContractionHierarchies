@@ -12,7 +12,7 @@ object Graphs {
 
   // Graph as per Monash University slides on Contraction Hierarchies
   def get_graph2(): Digraph[Int] = {
-    val g2_nodes: Set[Int] = (0 to 11).toSet
+    val g2_nodes: Set[Int] = (1 to 11).toSet
     val g2_undirected_edges: List[(Int, Int, Float)] = List(
       (1, 2, 1), (1, 6, 1), (1, 10, 1), (3, 5, 1), (3, 11, 1), (4, 5, 1),
       (4, 11, 2), (7, 8, 1), (7, 9, 1), (9, 10, 1), (9, 11, 1)
