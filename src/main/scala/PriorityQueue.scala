@@ -10,34 +10,28 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
   def isEmpty: Boolean = items.isEmpty
   def nonEmpty: Boolean = items.nonEmpty
 
-  private def get_left_child_index(i: Int): Int = 2*i + 1
-  private def get_right_child_index(i: Int): Int = 2*i +2
-  private def get_parent_index(i: Int): Int = (i - 1) / 2
-
-  private def get_smaller_child_index(index: Int): Int = {
-    var smaller_child_index = get_left_child_index(index)
-    if(has_right_child(index) && ord.lt(right_child(index), left_child(index))){
-      smaller_child_index = get_right_child_index(index)
-    }
-    smaller_child_index
+  private def parent(e: N): Option[N] = {
+    val parent_index: Int = (indexes(e) - 1) / 2
+    if(parent_index >= 0){Some(items(parent_index))}
+    else None
   }
 
-  private def has_left_child(i: Int): Boolean = get_left_child_index(i) < size
-  private def has_right_child(i: Int): Boolean = get_right_child_index(i) < size
-  private def has_parent(e: N): Boolean = get_parent_index(indexes(e)) >= 0
-
-  private def left_child(i: Int): N = items(get_left_child_index(i))
-  private def right_child(i: Int): N = items(get_right_child_index(i))
-  private def parent(e: N): N = items(get_parent_index(indexes(e)))
+  private def smaller_child(e: N): Option[N] = {
+    val left_child_index: Int = 2 * indexes(e) + 1
+    val right_child_index: Int = left_child_index + 1
+    if(right_child_index < size){Some(items(right_child_index))}
+    else if(left_child_index < size){Some(items(left_child_index))}
+    else None
+  }
 
   private def swap(first: N, second: N): Unit = {
     val first_index: Int = indexes(first)
     val second_index: Int = indexes(second)
-    val temp = items(first_index)
-    items(first_index) = items(second_index)
+    val temp: N = first
+    items(first_index) = second
+    indexes.addOne(second -> first_index)
     items(second_index) = temp
-    indexes.addOne(items(first_index) -> first_index)
-    indexes.addOne(items(second_index) -> second_index)
+    indexes.addOne(temp -> second_index)
   }
 
   def head: N = {
@@ -48,10 +42,11 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
   def dequeue(): N = {
     if(isEmpty){throw new IllegalStateException()}
     val head = items.head
-    swap(items(0), items(size-1))
-    items.remove(size-1)
     indexes.remove(head)
-    heapify_down(0)
+    items(0) = items(size-1)
+    indexes.addOne(items(0) -> 0)
+    items.remove(size-1)
+    if(nonEmpty){heapify_down(items(0))}
     head
   }
 
@@ -62,19 +57,18 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
   }
 
   @tailrec private def heapify_up(element: N): Unit = {
-    if(has_parent(element) && ord.gt(parent(element), element)){
-      swap(parent(element), element)
-      heapify_up(parent(element))
+    val parent_element: Option[N] = parent(element)
+    if(parent_element.isDefined && ord.gt(parent_element.get, element)){
+      swap(parent_element.get, element)
+      heapify_up(parent_element.get)
     }
   }
 
-  @tailrec private def heapify_down(index: Int): Unit = {
-    if(has_left_child(index)){
-      val smaller_child_index: Int = get_smaller_child_index(index)
-      if(ord.gteq(items(index), items(smaller_child_index))){
-        swap(items(index), items(smaller_child_index))
-        heapify_down(smaller_child_index)
-      }
+  @tailrec private def heapify_down(element: N): Unit = {
+    val child_element: Option[N] = smaller_child(element)
+    if(child_element.isDefined && ord.gteq(element, child_element.get)){
+      swap(element, child_element.get)
+      heapify_down(child_element.get)
     }
   }
 
