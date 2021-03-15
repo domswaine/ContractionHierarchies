@@ -24,11 +24,11 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
 
   private def has_left_child(i: Int): Boolean = get_left_child_index(i) < size
   private def has_right_child(i: Int): Boolean = get_right_child_index(i) < size
-  private def has_parent(i: Int): Boolean = get_parent_index(i) >= 0
+  private def has_parent(e: N): Boolean = get_parent_index(indexes(e)) >= 0
 
   private def left_child(i: Int): N = items(get_left_child_index(i))
   private def right_child(i: Int): N = items(get_right_child_index(i))
-  private def parent(i: Int): N = items(get_parent_index(i))
+  private def parent(e: N): N = items(get_parent_index(indexes(e)))
 
   private def swap(first: N, second: N): Unit = {
     val first_index: Int = indexes(first)
@@ -62,10 +62,9 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
   }
 
   @tailrec private def heapify_up(element: N): Unit = {
-    val index: Int = indexes(element)
-    if(has_parent(index) && ord.gt(parent(index), items(index))){
-      swap(parent(index), items(index))
-      heapify_up(parent(index))
+    if(has_parent(element) && ord.gt(parent(element), element)){
+      swap(parent(element), element)
+      heapify_up(parent(element))
     }
   }
 
