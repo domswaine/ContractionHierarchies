@@ -1,18 +1,24 @@
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.reflect.ClassTag
 
-class BinaryHeap[N : ClassTag](implicit val ord: Ordering[N]){
-  import ord._
-
+class PriorityQueue[N](implicit val ord: Ordering[N]){
   private val items: ArrayBuffer[N] = ArrayBuffer.empty[N]
+
   def size: Int = items.size
   def isEmpty: Boolean = items.isEmpty
-  def _items: Array[N] = items.toArray
+  def nonEmpty: Boolean = items.nonEmpty
 
   private def get_left_child_index(i: Int): Int = 2*i + 1
   private def get_right_child_index(i: Int): Int = 2*i +2
   private def get_parent_index(i: Int): Int = (i - 1) / 2
+
+  private def get_smaller_child_index(index: Int): Int = {
+    var smaller_child_index = get_left_child_index(index)
+    if(has_right_child(index) && ord.lt(right_child(index), left_child(index))){
+      smaller_child_index = get_right_child_index(index)
+    }
+    smaller_child_index
+  }
 
   private def has_left_child(i: Int): Boolean = get_left_child_index(i) < size
   private def has_right_child(i: Int): Boolean = get_right_child_index(i) < size
@@ -28,12 +34,12 @@ class BinaryHeap[N : ClassTag](implicit val ord: Ordering[N]){
     items(second_index) = temp
   }
 
-  def peak(): N = {
+  def head: N = {
     if(isEmpty){throw new IllegalStateException()}
     items.head
   }
 
-  def pull(): N = {
+  def dequeue(): N = {
     if(isEmpty){throw new IllegalStateException()}
     val head = items.head
     items(0) = items(size - 1)
@@ -42,13 +48,13 @@ class BinaryHeap[N : ClassTag](implicit val ord: Ordering[N]){
     head
   }
 
-  def add(element: N): Unit = {
+  def enqueue(element: N): Unit = {
     items.addOne(element)
     heapify_up(size - 1)
   }
 
   @tailrec private def heapify_up(index: Int): Unit = {
-    if(has_parent(index) && (parent(index) > items(index))){
+    if(has_parent(index) && ord.gt(parent(index), items(index))){
       swap(get_parent_index(index), index)
       heapify_up(get_parent_index(index))
     }
@@ -56,11 +62,8 @@ class BinaryHeap[N : ClassTag](implicit val ord: Ordering[N]){
 
   @tailrec private def heapify_down(index: Int): Unit = {
     if(has_left_child(index)){
-      var smaller_child_index = get_left_child_index(index)
-      if(has_right_child(index) && right_child(index) < left_child(index)){
-        smaller_child_index = get_right_child_index(index)
-      }
-      if(items(index) >= items(smaller_child_index)){
+      val smaller_child_index: Int = get_smaller_child_index(index)
+      if(ord.gteq(items(index), items(smaller_child_index))){
         swap(index, smaller_child_index)
         heapify_down(smaller_child_index)
       }
