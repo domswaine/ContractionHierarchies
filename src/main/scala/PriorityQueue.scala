@@ -1,6 +1,6 @@
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 class PriorityQueue[N](implicit val ord: Ordering[N]){
   private val items: ArrayBuffer[N] = ArrayBuffer.empty[N]
@@ -10,28 +10,33 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
   def isEmpty: Boolean = items.isEmpty
   def nonEmpty: Boolean = items.nonEmpty
 
-  private def parent(e: N): Option[N] = {
-    val parent_index: Int = (indexes(e) - 1) / 2
-    if(parent_index >= 0){Some(items(parent_index))}
-    else None
+  def _valid_indexing(): Boolean = {
+    var is_valid: Boolean = true
+    indexes.keySet.foreach(k => {
+      if(items(indexes(k)) != k){is_valid = false}
+    })
+    is_valid
   }
 
-  private def smaller_child(e: N): Option[N] = {
-    val left_child_index: Int = 2 * indexes(e) + 1
-    val right_child_index: Int = left_child_index + 1
-    if(right_child_index < size){Some(items(right_child_index))}
-    else if(left_child_index < size){Some(items(left_child_index))}
-    else None
+  private def in_range(i: Int): Option[Int] = if(i < size && i >= 0){Some(i)} else None
+  private def get_parent_index(i: Int): Option[Int] = in_range((i - 1) / 2)
+  private def get_left_child_index(i: Int): Option[Int] = in_range(2*i + 1)
+  private def get_right_child_index(i: Int): Option[Int] = in_range(2*i + 2)
+
+  private def get_smaller_child_index(i: Int): Option[Int] = get_left_child_index(i) match {
+    case None => None
+    case Some(left) => get_right_child_index(i) match {
+      case Some(right) if ord.lt(items(right), items(left)) => Some(right)
+      case _ => Some(left)
+    }
   }
 
-  private def swap(first: N, second: N): Unit = {
-    val first_index: Int = indexes(first)
-    val second_index: Int = indexes(second)
-    val temp: N = first
-    items(first_index) = second
-    indexes.addOne(second -> first_index)
+  private def swap(first_index: Int, second_index: Int): Unit = {
+    val temp = items(first_index)
+    items(first_index) = items(second_index)
     items(second_index) = temp
-    indexes.addOne(temp -> second_index)
+    indexes(items(first_index)) = first_index
+    indexes(items(second_index)) = second_index
   }
 
   def head: N = {
@@ -39,36 +44,49 @@ class PriorityQueue[N](implicit val ord: Ordering[N]){
     items.head
   }
 
-  def dequeue(): N = {
-    if(isEmpty){throw new IllegalStateException()}
-    val head = items.head
-    indexes.remove(head)
-    items(0) = items(size-1)
-    indexes.addOne(items(0) -> 0)
-    items.remove(size-1)
-    if(nonEmpty){heapify_down(items(0))}
-    head
-  }
-
   def enqueue(element: N): Unit = {
-    items.addOne(element)
-    indexes.addOne(element -> (size-1))
-    heapify_up(element)
-  }
-
-  @tailrec private def heapify_up(element: N): Unit = {
-    val parent_element: Option[N] = parent(element)
-    if(parent_element.isDefined && ord.gt(parent_element.get, element)){
-      swap(parent_element.get, element)
-      heapify_up(parent_element.get)
+    if(indexes.contains(element)){heapify(indexes(element))}
+    else{
+      items.addOne(element)
+      indexes.addOne(element -> (size-1))
+      heapifyUp(size - 1)
     }
   }
 
-  @tailrec private def heapify_down(element: N): Unit = {
-    val child_element: Option[N] = smaller_child(element)
-    if(child_element.isDefined && ord.gteq(element, child_element.get)){
-      swap(element, child_element.get)
-      heapify_down(child_element.get)
+  def dequeue(): N = {
+    if(isEmpty){throw new IllegalStateException()}
+    val head = items.head
+    swap(0, size-1)
+    items.remove(size - 1)
+    indexes.remove(head)
+    heapifyDown(0)
+    head
+  }
+
+  def dequeueAll(): Seq[N] = {
+    val bf: ListBuffer[N] = new ListBuffer[N]
+    while(nonEmpty){bf.addOne(dequeue())}
+    bf.toList
+  }
+
+  private def heapify(index: Int): Unit = {
+    heapifyUp(index)
+    heapifyDown(index)
+  }
+
+  @tailrec private def heapifyUp(index: Int): Unit = {
+    val parent_index: Option[Int] = get_parent_index(index)
+    if(parent_index.isDefined && ord.gt(items(parent_index.get), items(index))){
+      swap(parent_index.get, index)
+      heapifyUp(parent_index.get)
+    }
+  }
+
+  @tailrec private def heapifyDown(index: Int): Unit = {
+    val smaller_child_index: Option[Int] = get_smaller_child_index(index)
+    if(smaller_child_index.isDefined && ord.gteq(items(index), items(smaller_child_index.get))){
+      swap(index, smaller_child_index.get)
+      heapifyDown(smaller_child_index.get)
     }
   }
 

@@ -1,5 +1,8 @@
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.mutable
+import scala.util.Random
+
 class PriorityQueueTest extends AnyFunSuite {
 
   test("Test PQ isEmpty, nonEmpty") {
@@ -67,6 +70,48 @@ class PriorityQueueTest extends AnyFunSuite {
     assert(1 == pq.size)
     assert(pq.dequeue() == "A")
     assert(0 == pq.size)
+  }
+
+  test("Large test"){
+    val numbers_list: List[Int] = (0 to 100).toList
+    val pq: PriorityQueue[Int] = new PriorityQueue[Int]()
+    new Random(1).shuffle(numbers_list).foreach(n => pq.enqueue(n))
+    assert(pq.dequeueAll() == numbers_list)
+  }
+
+  test("Test PQ element indexing"){
+    val numbers_list: List[Int] = (0 to 20).toList
+    val pq: PriorityQueue[Int] = new PriorityQueue[Int]()
+    new Random(1).shuffle(numbers_list).foreach(n => {
+      pq.enqueue(n)
+      assert(pq._valid_indexing())
+    })
+    while(pq.nonEmpty){
+      pq.dequeue()
+      assert(pq._valid_indexing())
+    }
+  }
+
+  test("Test increasing the priority of an item") {
+    val d: mutable.Map[String, Int] = mutable.Map("A" -> 2, "B" -> 3, "C" -> 4, "D" -> 5)
+    val pq: PriorityQueue[String] = new PriorityQueue[String]()(Ordering[Int].on(d))
+    d.keySet.foreach(k => pq.enqueue(k))
+    assert(pq.head == "A")
+    d("C") = 0
+    assert(pq.head == "A")
+    pq.enqueue("C")
+    assert(pq.head == "C")
+  }
+
+  test("Test decreasing the priority of an item") {
+    val d: mutable.Map[String, Int] = mutable.Map("A" -> 2, "B" -> 3, "C" -> 4, "D" -> 5)
+    val pq: PriorityQueue[String] = new PriorityQueue[String]()(Ordering[Int].on(d))
+    d.keySet.foreach(k => pq.enqueue(k))
+    assert(pq.head == "A")
+    d("A") = 10
+    assert(pq.head == "A")
+    pq.enqueue("A")
+    assert(pq.head == "B")
   }
 
 }
